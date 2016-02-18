@@ -1,7 +1,7 @@
 '''
-/u/sadistmushroom\'s ODU Alerts v0.2
+/u/sadistmushroom\'s ODU Alerts v0.3
 by Tristan Pressley tpres008@odu.edu
-V0.2 2016-2-17
+V0.3 2016-2-17
 Much of the code here is taken from the Gmail API reference and Gmail quickstart python program
 Uses PRAW 3.3.0
 '''
@@ -28,7 +28,7 @@ except ImportError:
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/gmail-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
-CLIENT_SECRET_FILE = 'Removed for Security Purposes' '''PUT YOUR SECRET FILE FILENAME HERE'''
+CLIENT_SECRET_FILE = 'YourSecretFileHere.json'
 APPLICATION_NAME = 'Gmail API Python Quickstart'
 
 def ListMessagesMatchingQuery(service, user_id, query=''):
@@ -106,8 +106,8 @@ def main():
     me = "me"
     subredditName = 'libertybot' #name of the subreddit to post to
     postIdFile = open("postedIds.txt", 'r+')
-    r = praw.Reddit('/u/sadistmushroom\'s ODU Alerts v0.2')
-    r.login()  #Login prompt for the reddit bot
+    r = praw.Reddit('/u/sadistmushroom\'s ODU Alerts v0.3')
+    r.login(disable_warning='true')  #Login prompt for the reddit bot
     subreddit = r.get_subreddit(subredditName) 
     bodyText = ""  #stores body text of the email
     submissionTitle = ""  #stores submission title 
@@ -135,9 +135,13 @@ def main():
                         postIdFile.write(msg['id'] + "\n") #add the message's id to the id file
                         try:
                             #print ("==============This msg would now be posted to reddit===================") ##for debugging purposes only
-                            print(decode_base64(msg['payload']['parts'][0]['body']['data']))      ##
+                            for header in (msg['payload']['headers']):
+                                if header['name'] == 'Subject':
+                                    subject = header['value']       ##Get the email subject
+                                    break
+                            print (subject)
                             bodyText = decode_base64(msg['payload']['parts'][0]['body']['data'])  ##Decode the message from base64, print to screen and prepare it for posting
-                            submissionTitle = "ODU Alerts"    '''TODO Replace this with a method that uses the email's subject line as the submission title'''
+                            submissionTitle = subject
                             r.submit(subreddit,submissionTitle, text=bodyText, url=None,captcha=None,send_replies=None,resubmit=None) #submit the post
                             break  ##Break the current message list loop
                         except binascii.Error:

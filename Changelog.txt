@@ -1,0 +1,2 @@
+v0.2: added postIdFile added to carry list of posted msgs over sessions
+v0.3: added ability to use email subject as post title
